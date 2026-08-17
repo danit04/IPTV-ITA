@@ -12,13 +12,16 @@ RAI_STREAMS = {
     "Rai3.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308709&output=7&forceUserAgent=raiplayappletv",
 }
 
+
 def download(url):
-    req = urllib.request.Request(
+    request = urllib.request.Request(
         url,
         headers={"User-Agent": "Mozilla/5.0"}
     )
-    with urllib.request.urlopen(req, timeout=60) as response:
+
+    with urllib.request.urlopen(request, timeout=60) as response:
         return response.read().decode("utf-8", errors="replace")
+
 
 def parse_playlist(text):
     lines = text.splitlines()
@@ -30,9 +33,15 @@ def parse_playlist(text):
 
     return result
 
+
 def get_tvg_id(extinf):
     match = re.search(r'tvg-id="([^"]+)"', extinf)
-    return match.group(1) if match else ""
+
+    if match:
+        return match.group(1)
+
+    return ""
+
 
 def main():
 
@@ -45,16 +54,14 @@ def main():
     free_items = parse_playlist(free_tv)
     org_items = parse_playlist(iptv_org)
 
-    # Costruisce una tabella:
-    # Rai1.it -> URL IPTV-org
     rai_streams = {}
 
     for extinf, url in org_items:
+
         tvg_id = get_tvg_id(extinf)
 
-        if tvg_id.startswith("Rai"):
-            if url.startswith("http"):
-                rai_streams[tvg_id] = url.strip()
+        if tvg_id.startswith("Rai") and url.startswith("http"):
+            rai_streams[tvg_id] = url.strip()
 
     print(f"Trovati {len(rai_streams)} stream Rai su IPTV-org")
 
@@ -66,25 +73,22 @@ def main():
 
         tvg_id = get_tvg_id(extinf)
 
-        # Mantiene TUTTI i dati di Free-TV:
-        # nome
-        # logo
-        # gruppo
-        # numerazione
-        #
-        # cambia solamente l'URL dello stream Rai.
+        if tvg_id in RAI_STREAMS:
 
-           if tvg_id in RAI_STREAMS:
             output.append(extinf)
             output.append(RAI_STREAMS[tvg_id])
+
             replaced += 1
 
         elif tvg_id in rai_streams:
+
             output.append(extinf)
             output.append(rai_streams[tvg_id])
+
             replaced += 1
 
         else:
+
             output.append(extinf)
             output.append(url)
 
@@ -96,6 +100,7 @@ def main():
     print(f"Playlist generata.")
     print(f"Canali totali: {len(free_items)}")
     print(f"Stream Rai sostituiti: {replaced}")
+
 
 if __name__ == "__main__":
     main()
