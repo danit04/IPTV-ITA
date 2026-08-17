@@ -6,6 +6,12 @@ FREE_TV = "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playl
 IPTV_ORG = "https://iptv-org.github.io/iptv/countries/it.m3u"
 OUTPUT = "playlist.m3u"
 
+RAI_STREAMS = {
+    "Rai1.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803&output=7&forceUserAgent=raiplayappletv",
+    "Rai2.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308718&output=7&forceUserAgent=raiplayappletv",
+    "Rai3.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308709&output=7&forceUserAgent=raiplayappletv",
+}
+
 def download(url):
     req = urllib.request.Request(
         url,
@@ -68,13 +74,19 @@ def main():
         #
         # cambia solamente l'URL dello stream Rai.
 
-        if tvg_id in rai_streams:
+        if tvg_id in RAI_STREAMS:
 
-            output.append(extinf)
-            output.append(rai_streams[tvg_id])
+    output.append(extinf)
+    output.append(RAI_STREAMS[tvg_id])
 
-            replaced += 1
+    replaced += 1
 
+elif tvg_id in rai_streams:
+
+    output.append(extinf)
+    output.append(rai_streams[tvg_id])
+
+    replaced += 1
         else:
 
             output.append(extinf)
