@@ -7,7 +7,7 @@ IPTV_ORG = "https://iptv-org.github.io/iptv/countries/it.m3u"
 OUTPUT = "playlist.m3u"
 
 RAI_STREAMS = {
-    "Rai1.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803&output=7&forceUserAgent=raiplayappletv",
+    "Rai1.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803&output=7&forceUserAgent=raiplayappletv|User-Agent=raiplayappletv",
     "Rai2.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308718&output=7&forceUserAgent=raiplayappletv",
     "Rai3.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308709&output=7&forceUserAgent=raiplayappletv",
 }
