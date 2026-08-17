@@ -6,12 +6,6 @@ FREE_TV = "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playl
 IPTV_ORG = "https://iptv-org.github.io/iptv/countries/it.m3u"
 OUTPUT = "playlist.m3u"
 
-RAI_STREAMS = {
-    "Rai1.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803&output=7&forceUserAgent=raiplayappletv|User-Agent=raiplayappletv",
-    "Rai2.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308718&output=7&forceUserAgent=raiplayappletv",
-    "Rai3.it": "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308709&output=7&forceUserAgent=raiplayappletv",
-}
-
 
 def download(url):
     request = urllib.request.Request(
@@ -25,13 +19,13 @@ def download(url):
 
 def parse_playlist(text):
     lines = text.splitlines()
-    result = []
+    items = []
 
     for i, line in enumerate(lines):
         if line.startswith("#EXTINF:") and i + 1 < len(lines):
-            result.append((line, lines[i + 1]))
+            items.append((line, lines[i + 1]))
 
-    return result
+    return items
 
 
 def get_tvg_id(extinf):
@@ -45,25 +39,27 @@ def get_tvg_id(extinf):
 
 def main():
 
-    print("Scarico Free-TV...")
+    print("Downloading Free-TV...")
     free_tv = download(FREE_TV)
 
-    print("Scarico IPTV-org...")
+    print("Downloading IPTV-org...")
     iptv_org = download(IPTV_ORG)
 
     free_items = parse_playlist(free_tv)
     org_items = parse_playlist(iptv_org)
 
-    rai_streams = {}
+    # Build a dictionary containing the CURRENT stream
+    # from IPTV-org for every channel.
+    org_streams = {}
 
     for extinf, url in org_items:
 
         tvg_id = get_tvg_id(extinf)
 
-        if tvg_id.startswith("Rai") and url.startswith("http"):
-            rai_streams[tvg_id] = url.strip()
+        if tvg_id and url.startswith("http"):
+            org_streams[tvg_id] = url.strip()
 
-    print(f"Trovati {len(rai_streams)} stream Rai su IPTV-org")
+    print(f"Found {len(org_streams)} IPTV-org streams.")
 
     output = ["#EXTM3U"]
 
@@ -73,17 +69,12 @@ def main():
 
         tvg_id = get_tvg_id(extinf)
 
-        if tvg_id in RAI_STREAMS:
+        # Replace ONLY Rai channels.
+        # Everything else remains exactly as Free-TV.
+        if tvg_id.startswith("Rai") and tvg_id in org_streams:
 
             output.append(extinf)
-            output.append(RAI_STREAMS[tvg_id])
-
-            replaced += 1
-
-        elif tvg_id in rai_streams:
-
-            output.append(extinf)
-            output.append(rai_streams[tvg_id])
+            output.append(org_streams[tvg_id])
 
             replaced += 1
 
@@ -97,9 +88,9 @@ def main():
         encoding="utf-8"
     )
 
-    print(f"Playlist generata.")
-    print(f"Canali totali: {len(free_items)}")
-    print(f"Stream Rai sostituiti: {replaced}")
+    print("Playlist generated.")
+    print(f"Total Free-TV channels: {len(free_items)}")
+    print(f"Rai streams replaced from IPTV-org: {replaced}")
 
 
 if __name__ == "__main__":
