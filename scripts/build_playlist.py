@@ -74,21 +74,17 @@ def main():
         #
         # cambia solamente l'URL dello stream Rai.
 
-        if tvg_id in RAI_STREAMS:
+           if tvg_id in RAI_STREAMS:
+            output.append(extinf)
+            output.append(RAI_STREAMS[tvg_id])
+            replaced += 1
 
-    output.append(extinf)
-    output.append(RAI_STREAMS[tvg_id])
+        elif tvg_id in rai_streams:
+            output.append(extinf)
+            output.append(rai_streams[tvg_id])
+            replaced += 1
 
-    replaced += 1
-
-elif tvg_id in rai_streams:
-
-    output.append(extinf)
-    output.append(rai_streams[tvg_id])
-
-    replaced += 1
         else:
-
             output.append(extinf)
             output.append(url)
 
